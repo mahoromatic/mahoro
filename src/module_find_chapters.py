@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import time
 
 
-from services import mangaplus, youpoll
+from services import mangaplus
 import reddit
 
 import schedule
@@ -42,8 +42,6 @@ def _find_mangaplus_chapters(config, db):
 
     chapter_ids = db.get_chapter_ids()
 
-    y = youpoll.YouPoll()
-
     for manga in mangas:
         m = mangaplus.MangaplusService()
         resp = m.request_from_api(manga_id=manga.manga_id)
@@ -59,20 +57,18 @@ def _find_mangaplus_chapters(config, db):
                 submission = reddit.submit_link_post(
                     reddit_post_title, reddit_post_link, config.subreddit, manga.is_nsfw)
 
-                reddit_comment_body, youpoll_id = _process_into_reddit_comment(
-                    config, db, y, reddit_post_title, manga)
+                reddit_comment_body = _process_into_reddit_comment(reddit_post_title)
                 comment = reddit.comment_post(submission, reddit_comment_body)
 
                 for Chapter in Chapters:
-                    Chapter.youpoll_id = youpoll_id
                     Chapter.reddit_post_id = submission.id
                     Chapter.reddit_comment_id = comment.id
                     db.add_chapter(Chapter.chapter_id, Chapter.chapter_name, Chapter.chapter_number,
-                                   Chapter.youpoll_id, Chapter.reddit_post_id, Chapter.reddit_comment_id, manga.manga_id)
+                                   Chapter.reddit_post_id, Chapter.reddit_comment_id, manga.manga_id)
 
             db.update_manga(manga_id=manga.manga_id,
                             next_update_time=Manga.next_update_time, is_completed=Manga.is_completed)
-    
+
     time.sleep(2)
 
     if mangas or datetime.now().hour in [23, 0]:
@@ -99,17 +95,8 @@ def _process_into_reddit_post(config, db, Manga, Chapters):
     return reddit_post_title, reddit_post_link
 
 
-def _process_into_reddit_comment(config, db, youpoll, reddit_post_title, manga):
-    poll_url, poll_id = youpoll.create_poll(reddit_post_title[7:])
-    reddit_search_url = reddit_search_url_format.format(manga_name=manga.manga_name.replace('#', ''))
-    if poll_id is not None:
-        reddit_comment_body = reddit_comment_body_format.format(
-            poll_url=poll_url, manga_title=reddit_post_title[7:], reddit_search_url=reddit_search_url, subreddit_name=manga.subreddit)
-        return reddit_comment_body, poll_id
-    else:
-        reddit_comment_body = reddit_comment_body_format.format(
-            poll_url='-', manga_title=reddit_post_title[7:], reddit_search_url=reddit_search_url, subreddit_name=manga.subreddit)
-        return reddit_comment_body, '-'
+def _process_into_reddit_comment(reddit_post_title):
+    return reddit_comment_body_format.format(manga_title=reddit_post_title[7:])
 
 
 def _update_mangaplus_hiatus_manga(config, db):
@@ -145,7 +132,6 @@ def _find_new_manga(config, db):
     manga_re_edtion_ids.extend(db.get_manga_ids())
 
     m = mangaplus.MangaplusService()
-    y = youpoll.YouPoll()
 
     resp = m.request_from_api(updated=True)
     if resp:
@@ -167,16 +153,14 @@ def _find_new_manga(config, db):
             submission = reddit.submit_link_post(
                 reddit_post_title, reddit_post_link, config.subreddit, False)
 
-            reddit_comment_body, youpoll_id = _process_into_reddit_comment(
-                config, db, y, reddit_post_title, Manga)
+            reddit_comment_body = _process_into_reddit_comment(reddit_post_title)
             comment = reddit.comment_post(submission, reddit_comment_body)
 
             db.add_manga(Manga.manga_id, Manga.manga_name, Manga.subreddit,
                          Manga.next_update_time, Manga.is_completed, Manga.is_nsfw)
 
             for Chapter in Chapters:
-                Chapter.youpoll_id = youpoll_id
                 Chapter.reddit_post_id = submission.id
                 Chapter.reddit_comment_id = comment.id
                 db.add_chapter(Chapter.chapter_id, Chapter.chapter_name, Chapter.chapter_number,
-                               Chapter.youpoll_id, Chapter.reddit_post_id, Chapter.reddit_comment_id, manga_id)
+                               Chapter.reddit_post_id, Chapter.reddit_comment_id, manga_id)

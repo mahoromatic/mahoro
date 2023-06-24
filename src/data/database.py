@@ -72,7 +72,6 @@ class PlusDatabase:
             chapter_id          INTEGER NOT NULL PRIMARY KEY,
             chapter_name        TEXT NOT NULL,
             chapter_number      REAL NOT NULL,
-            youpoll_id          INTEGER NOT NULL,
             reddit_post_id      TEXT NOT NULL,
             reddit_comment_id   TEXT NOT NULL,
             manga               INTEGER NOT NULL,
@@ -86,7 +85,7 @@ class PlusDatabase:
     @db_error_default(None)
     def get_manga(self, manga_id=None) -> Optional[Manga]:
         if manga_id is not None:
-            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw 
+            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw
                 FROM Manga WHERE manga_id = ?
             """, (manga_id,))
         else:
@@ -100,14 +99,14 @@ class PlusDatabase:
         mangas = list()
 
         if (current_time is not None):
-            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw 
+            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw
                 FROM Manga WHERE next_update_time BETWEEN ? AND ? ORDER BY next_update_time ASC
             """, (datetime.timestamp(current_time-timedelta(minutes=5)), datetime.timestamp(current_time+timedelta(minutes=5))))
             for manga in self.q.fetchall():
                 mangas.append(Manga(*manga))
 
         elif not completed and not all:
-            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw 
+            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw
                 FROM Manga WHERE is_completed = 0 ORDER BY next_update_time ASC
             """)
             for manga in self.q.fetchall():
@@ -119,7 +118,7 @@ class PlusDatabase:
                 mangas.append(Manga(*manga))
         else:
             info("Getting completed/hiatus manga...")
-            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw 
+            self.q.execute("""SELECT manga_id,manga_name,subreddit,next_update_time,is_completed,is_nsfw
                 FROM Manga WHERE is_completed = 1
             """)
             for manga in self.q.fetchall():
@@ -149,7 +148,7 @@ class PlusDatabase:
     @db_error_default(None)
     def get_chapter(self, chapter_id=None) -> Optional[Chapter]:
         if chapter_id is not None:
-            self.q.execute("""SELECT chapter_id,chapter_name,chapter_number,youpoll_id,reddit_post_id,reddit_comment_id,manga
+            self.q.execute("""SELECT chapter_id,chapter_name,chapter_number,reddit_post_id,reddit_comment_id,manga
                 FROM Chapter WHERE chapter_id = ?
             """, (chapter_id,))
         else:
@@ -175,12 +174,12 @@ class PlusDatabase:
 
     @db_error_default(list())
     def get_chapter_ids(self,manga_id=None) -> List:
-        
+
         if manga_id is not None:
             self.q.execute("SELECT chapter_id FROM Chapter WHERE manga = ?",(manga_id,))
         else:
             self.q.execute("SELECT chapter_id FROM Chapter")
-            
+
         chapter_ids = [chapter_id[0] for chapter_id in self.q.fetchall()]
 
         return chapter_ids
@@ -203,10 +202,10 @@ class PlusDatabase:
             self.commit()
 
     @db_error
-    def add_chapter(self, chapter_id, chapter_name, chapter_number, youpoll_id, reddit_post_id, reddit_comment_id, manga, commit=True):
+    def add_chapter(self, chapter_id, chapter_name, chapter_number, reddit_post_id, reddit_comment_id, manga, commit=True):
         info(f"Adding chapter: {chapter_id}")
-        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,youpoll_id,reddit_post_id,reddit_comment_id,manga) VALUES (?,?,?,?,?,?,?)",
-                       (chapter_id, chapter_name, chapter_number,  youpoll_id, reddit_post_id, reddit_comment_id, manga))
+        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,reddit_post_id,reddit_comment_id,manga) VALUES (?,?,?,?,?,?,?)",
+                       (chapter_id, chapter_name, chapter_number, reddit_post_id, reddit_comment_id, manga))
         if commit:
             self.commit()
 

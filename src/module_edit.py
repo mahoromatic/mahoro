@@ -87,7 +87,7 @@ def _migrate_chapters(db,old_db_name):
     manga_ids=db.get_manga_ids()
 
     for manga_id in manga_ids:
-        chapter_ids=db.get_chapter_ids(manga_id=manga_id) 
+        chapter_ids=db.get_chapter_ids(manga_id=manga_id)
         old_chapter_ids=old_db.get_chapter_ids(manga_id=manga_id)
 
         different_chapter_ids=list(set(old_chapter_ids) - set(chapter_ids))
@@ -96,6 +96,5 @@ def _migrate_chapters(db,old_db_name):
             chapter=old_db.get_chapter(chapter_id=chapter_id)
 
             info(chapter)
-            
-            db.add_chapter(chapter.chapter_id,chapter.chapter_name,chapter.chapter_number,chapter.youpoll_id,chapter.reddit_post_id,chapter.reddit_comment_id,chapter.manga_id)
-            
+
+            db.add_chapter(chapter.chapter_id,chapter.chapter_name,chapter.chapter_number,chapter.reddit_post_id,chapter.reddit_comment_id,chapter.manga_id)
