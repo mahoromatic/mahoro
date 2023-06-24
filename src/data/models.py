@@ -28,6 +28,5 @@ class Chapter:
     chapter_name:str
     chapter_number:float
     reddit_post_id:str = field(default='')
-    reddit_comment_id:str = field(default='')
     manga_id:int = field(default=None)
 

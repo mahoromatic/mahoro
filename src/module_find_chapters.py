@@ -12,14 +12,10 @@ ignore_chapter_id = False  # for debugging purposes, normally should always be F
 
 reddit_post_title_format = ''
 reddit_post_link_format = "https://mangaplus.shueisha.co.jp/viewer/{chapter_id}"
-reddit_comment_body_format = ''
-reddit_search_url_format = 'https://www.reddit.com/r/manga/search/?q=title%3A"{manga_name}" flair%3A"DISC"&restrict_sr=1&sort=new'
-
 
 def main(config, db, **kwargs):
-    global reddit_post_title_format, reddit_comment_body_format
+    global reddit_post_title_format
     reddit_post_title_format = config.post_title
-    reddit_comment_body_format = config.comment_body
 
     if kwargs['debug']:
         info("Debug mode not available")
@@ -57,14 +53,10 @@ def _find_mangaplus_chapters(config, db):
                 submission = reddit.submit_link_post(
                     reddit_post_title, reddit_post_link, config.subreddit, manga.is_nsfw)
 
-                reddit_comment_body = _process_into_reddit_comment(reddit_post_title)
-                comment = reddit.comment_post(submission, reddit_comment_body)
-
                 for Chapter in Chapters:
                     Chapter.reddit_post_id = submission.id
-                    Chapter.reddit_comment_id = comment.id
                     db.add_chapter(Chapter.chapter_id, Chapter.chapter_name, Chapter.chapter_number,
-                                   Chapter.reddit_post_id, Chapter.reddit_comment_id, manga.manga_id)
+                                   Chapter.reddit_post_id, manga.manga_id)
 
             db.update_manga(manga_id=manga.manga_id,
                             next_update_time=Manga.next_update_time, is_completed=Manga.is_completed)
@@ -93,10 +85,6 @@ def _process_into_reddit_post(config, db, Manga, Chapters):
         reddit_post_title += f" & {'Extra Chapter' if Chapters[1].chapter_number == 0 else f'{Chapters[1].chapter_number:g}' }"
 
     return reddit_post_title, reddit_post_link
-
-
-def _process_into_reddit_comment(reddit_post_title):
-    return reddit_comment_body_format.format(manga_title=reddit_post_title[7:])
 
 
 def _update_mangaplus_hiatus_manga(config, db):
@@ -153,14 +141,10 @@ def _find_new_manga(config, db):
             submission = reddit.submit_link_post(
                 reddit_post_title, reddit_post_link, config.subreddit, False)
 
-            reddit_comment_body = _process_into_reddit_comment(reddit_post_title)
-            comment = reddit.comment_post(submission, reddit_comment_body)
-
             db.add_manga(Manga.manga_id, Manga.manga_name, Manga.subreddit,
                          Manga.next_update_time, Manga.is_completed, Manga.is_nsfw)
 
             for Chapter in Chapters:
                 Chapter.reddit_post_id = submission.id
-                Chapter.reddit_comment_id = comment.id
                 db.add_chapter(Chapter.chapter_id, Chapter.chapter_name, Chapter.chapter_number,
-                               Chapter.reddit_post_id, Chapter.reddit_comment_id, manga_id)
+                               Chapter.reddit_post_id, manga_id)

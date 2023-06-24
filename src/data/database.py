@@ -73,7 +73,6 @@ class PlusDatabase:
             chapter_name        TEXT NOT NULL,
             chapter_number      REAL NOT NULL,
             reddit_post_id      TEXT NOT NULL,
-            reddit_comment_id   TEXT NOT NULL,
             manga               INTEGER NOT NULL,
             FOREIGN KEY(manga)  REFERENCES Manga(manga_id) ON DELETE CASCADE
         )""")
@@ -148,7 +147,7 @@ class PlusDatabase:
     @db_error_default(None)
     def get_chapter(self, chapter_id=None) -> Optional[Chapter]:
         if chapter_id is not None:
-            self.q.execute("""SELECT chapter_id,chapter_name,chapter_number,reddit_post_id,reddit_comment_id,manga
+            self.q.execute("""SELECT chapter_id,chapter_name,chapter_number,reddit_post_id,manga
                 FROM Chapter WHERE chapter_id = ?
             """, (chapter_id,))
         else:
@@ -202,10 +201,10 @@ class PlusDatabase:
             self.commit()
 
     @db_error
-    def add_chapter(self, chapter_id, chapter_name, chapter_number, reddit_post_id, reddit_comment_id, manga, commit=True):
+    def add_chapter(self, chapter_id, chapter_name, chapter_number, reddit_post_id, manga, commit=True):
         info(f"Adding chapter: {chapter_id}")
-        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,reddit_post_id,reddit_comment_id,manga) VALUES (?,?,?,?,?,?,?)",
-                       (chapter_id, chapter_name, chapter_number, reddit_post_id, reddit_comment_id, manga))
+        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,reddit_post_id,manga) VALUES (?,?,?,?,?,?,?)",
+                       (chapter_id, chapter_name, chapter_number, reddit_post_id, manga))
         if commit:
             self.commit()
 

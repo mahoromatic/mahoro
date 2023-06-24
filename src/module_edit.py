@@ -97,4 +97,4 @@ def _migrate_chapters(db,old_db_name):
 
             info(chapter)
 
-            db.add_chapter(chapter.chapter_id,chapter.chapter_name,chapter.chapter_number,chapter.reddit_post_id,chapter.reddit_comment_id,chapter.manga_id)
+            db.add_chapter(chapter.chapter_id,chapter.chapter_name,chapter.chapter_number,chapter.reddit_post_id,chapter.manga_id)
