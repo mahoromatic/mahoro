@@ -18,15 +18,15 @@ import services
 
 def main(config, args, extra_args):
 	from logging import debug, info, warning, error, exception
-	
+
 	# Set things up
 	db = database.initialize_database(config.database)
 	if not db:
 		error("Cannot continue running without a database")
 		return
 
-	# services.setup_services(config) 
-	
+	# services.setup_services(config)
+
 	# Run the requested module
 	try:
 		debug("Running module {}".format(config.module))
@@ -50,9 +50,9 @@ def main(config, args, extra_args):
 	except:
 		exception("Unknown exception or error")
 		db.rollback()
-	
+
 	db.close()
-	
+
 if __name__ == "__main__":
 	# Parse args
 	import argparse
@@ -68,7 +68,7 @@ if __name__ == "__main__":
 	parser.add_argument("-D","--debug", action="store_true", default=False)
 	parser.add_argument("extra", nargs="*")
 	args = parser.parse_args()
-	
+
 	# Load config file
 	import config
 	config_file = os.environ["PLUS_CONFIG"] if "PLUS_CONFIG" in os.environ else args.config_file[0]
@@ -76,7 +76,7 @@ if __name__ == "__main__":
 	if c is None:
 		print("Cannot start without a valid configuration file")
 		sys.exit(2)
-	
+
 	# Override config with args
 	c.debug |= args.debug
 	c.module = args.module[0]
@@ -85,16 +85,16 @@ if __name__ == "__main__":
 		c.database = args.db_name[0]
 	if args.subreddit is not None:
 		c.subreddit = args.subreddit[0]
-	
+
 	# Start
 	use_log = args.no_input
-	
+
 	import logging
 	from logging.handlers import TimedRotatingFileHandler
 	if use_log:
-		os.makedirs(c.log_dir, exist_ok=True)
-		
-		log_file = "{dir}/plus_{mod}.log".format(dir=c.log_dir, mod=c.module)
+		os.makedirs("/data/" + c.log_dir, exist_ok=True)
+
+		log_file = "/data/logs/mahoro.log"
 		logging.basicConfig(
 			handlers=[TimedRotatingFileHandler(log_file, when="midnight", backupCount=7, encoding="UTF-8")],
 			format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
@@ -104,28 +104,27 @@ if __name__ == "__main__":
 		logging.basicConfig(format="%(levelname)s | %(message)s", level=logging.DEBUG if c.debug else logging.INFO)
 
 	logging.getLogger("requests").setLevel(logging.WARNING)
-	logging.getLogger("praw-script-oauth").setLevel(logging.WARNING)
-	
+
 	from logging import info, warning
 	from time import time
-	
+
 	if use_log:
 		info("------------------------------------------------------------")
 	err = config.validate_config(c)
 	if err:
 		warning("Configuration state invalid: {}".format(err))
-	
+
 	if c.debug:
 		info("DEBUG MODE ENABLED")
-        
+
 	start_time = time()
 	main(c, args, args.extra)
 	end_time = time()
-	
+
 	time_diff = end_time - start_time
 	info("")
 	info("Run time: {:.6} seconds".format(time_diff))
-	
+
 	if use_log:
 		info("------------------------------------------------------------\n")
 

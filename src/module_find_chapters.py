@@ -51,10 +51,10 @@ def _find_mangaplus_chapters(config, db):
                 # info(f"Reddit Post Title: {reddit_post_title}")
                 # info(f"Reddit Post Link: {reddit_post_link}")
                 submission = reddit.submit_link_post(
-                    reddit_post_title, reddit_post_link, config.subreddit, manga.is_nsfw)
+                    reddit_post_title, reddit_post_link, config.community, manga.is_nsfw)
 
                 for Chapter in Chapters:
-                    Chapter.reddit_post_id = submission.id
+                    Chapter.reddit_post_id = submission["post_view"]["post"]["id"]
                     db.add_chapter(Chapter.chapter_id, Chapter.chapter_name, Chapter.chapter_number,
                                    Chapter.reddit_post_id, manga.manga_id)
 
@@ -139,7 +139,7 @@ def _find_new_manga(config, db):
             # info(f"Reddit Post Title: {reddit_post_title}")
             # info(f"Reddit Post Link: {reddit_post_link}")
             submission = reddit.submit_link_post(
-                reddit_post_title, reddit_post_link, config.subreddit, False)
+                reddit_post_title, reddit_post_link, config.community, False)
 
             db.add_manga(Manga.manga_id, Manga.manga_name, Manga.subreddit,
                          Manga.next_update_time, Manga.is_completed, Manga.is_nsfw)
