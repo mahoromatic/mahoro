@@ -159,11 +159,11 @@ def _view_chapters_in_database(config, db):
         chapters = db.get_chapters()
     else:
         chapters = db.get_chapters(manga_id=manga_id)
-    headers = ["Chapter ID", "Chapter Number", "Youpoll ID",
+    headers = ["Chapter ID", "Chapter Number",
                "Reddit Post ID", "Reddit Comment ID", "Manga ID"]
     table = []
     for chapter in chapters:
-        table.append([chapter.chapter_id, chapter.chapter_number, chapter.youpoll_id,
+        table.append([chapter.chapter_id, chapter.chapter_number,
                      chapter.reddit_post_id, chapter.reddit_comment_id, chapter.manga_id])
     print(tabulate(table, headers=headers))
     delete_chapter = input("\nDelete chapter from database? (Y/N): ").lower()
