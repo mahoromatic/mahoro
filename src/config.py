@@ -23,7 +23,6 @@ class Config:
         self.subreddit=None
 
         self.post_title = None
-        self.comment_body = None
 
 
 def from_file(file_path):
@@ -51,7 +50,6 @@ def from_file(file_path):
     if "post" in parsed:
         sec = parsed["post"]
         config.post_title = sec.get("title", None)
-        config.comment_body = sec.get("comment", None)
 
     return config
 
@@ -74,5 +72,3 @@ def validate_config(config):
         return "reddit user agent missing"
     if is_bad_str(config.post_title):
         return "post title missing"
-    if is_bad_str(config.comment_body):
-        return "comment body missing"

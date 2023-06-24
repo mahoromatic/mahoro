@@ -12,7 +12,7 @@ def _connect_reddit():
 	if _config is None:
 		error("Can't connect to reddit without a config")
 		return None
-	
+
 	return praw.Reddit(client_id=_config.reddit_client_id, client_secret=_config.reddit_client_secret,
 					username=_config.reddit_username, password=_config.reddit_password,
 					user_agent=_config.reddit_user_agent,
@@ -33,10 +33,3 @@ def submit_link_post(title,url,subreddit,nsfw):
     except:
         exception("Failed to submit post")
         return None
-
-def comment_post(submission,comment_text):
-    try:
-        comment=submission.reply(comment_text)
-        return comment
-    except:
-        exception("Failed to comment post")
