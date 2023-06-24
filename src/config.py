@@ -15,12 +15,10 @@ class Config:
         self.module = None
         self.database = None
 
-        self.reddit_username = None
-        self.reddit_password = None
-        self.reddit_client_id = None
-        self.reddit_client_secret = None
-        self.reddit_user_agent = None
-        self.subreddit=None
+        self.lemmy_server = None
+        self.lemmy_username = None
+        self.lemmy_password = None
+        self.community = None
 
         self.post_title = None
 
@@ -38,18 +36,15 @@ def from_file(file_path):
         sec = parsed["data"]
         config.database = sec.get("database", None)
 
-    if "reddit" in parsed:
-        sec = parsed["reddit"]
-        config.reddit_username = sec.get("username", None)
-        config.reddit_password = sec.get("password", None)
-        config.reddit_client_id = sec.get("client_id", None)
-        config.reddit_client_secret = sec.get("client_secret", None)
-        config.reddit_user_agent = sec.get("user_agent", None)
-        config.subreddit=sec.get("subreddit",None)
-
     if "post" in parsed:
         sec = parsed["post"]
         config.post_title = sec.get("title", None)
+
+    # secrets from env variables
+    config.lemmy_server = os.environ.get("LEMMY_SERVER")
+    config.lemmy_username = os.environ.get("LEMMY_USERNAME")
+    config.lemmy_password = os.environ.get("LEMMY_PASSWORD")
+    config.community = os.environ.get("LEMMY_COMMUNITY")
 
     return config
 
@@ -60,15 +55,5 @@ def validate_config(config):
 
     if is_bad_str(config.database):
         return "database missing"
-    if is_bad_str(config.reddit_username):
-        return "reddit username missing"
-    if is_bad_str(config.reddit_password):
-        return "reddit password missing"
-    if is_bad_str(config.reddit_client_id):
-        return "reddit cliet id missing"
-    if is_bad_str(config.reddit_client_secret):
-        return "reddit client secret missing"
-    if is_bad_str(config.reddit_user_agent):
-        return "reddit user agent missing"
     if is_bad_str(config.post_title):
         return "post title missing"

@@ -58,6 +58,16 @@ def _edit_with_file(db, edit_file):
                 manga.is_nsfw = parsed[manga_id]['is_nsfw']
                 db.add_manga(manga.manga_id, manga.manga_name, manga.subreddit,
                              manga.next_update_time, manga.is_completed, manga.is_nsfw, commit=False)
+                # backfill
+                chapters = m.get_chapter_detail()
+                for chapter in chapters:
+                    db.add_chapter(
+                        chapter_id=chapter.chapter_id,
+                        chapter_name=chapter.chapter_name,
+                        chapter_number=chapter.chapter_number,
+                        reddit_post_id="",
+                        manga=manga.manga_id,
+                    )
             else:
                 return False
     return True

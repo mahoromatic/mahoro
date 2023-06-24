@@ -203,7 +203,7 @@ class PlusDatabase:
     @db_error
     def add_chapter(self, chapter_id, chapter_name, chapter_number, reddit_post_id, manga, commit=True):
         info(f"Adding chapter: {chapter_id}")
-        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,reddit_post_id,manga) VALUES (?,?,?,?,?,?,?)",
+        self.q.execute("INSERT OR IGNORE INTO Chapter (chapter_id,chapter_name,chapter_number,reddit_post_id,manga) VALUES (?,?,?,?,?)",
                        (chapter_id, chapter_name, chapter_number, reddit_post_id, manga))
         if commit:
             self.commit()
