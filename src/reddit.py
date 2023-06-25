@@ -1,5 +1,7 @@
 from logging import debug, info, error, exception
+from time import sleep
 from pythorhead import Lemmy
+
 
 _r = None
 _config = None
@@ -36,6 +38,7 @@ def submit_link_post(title, url, community, nsfw):
 
     try:
         info(f"Submitting post '{title}'    {url}")
+        sleep(10) # prevent hammering lemmy
         submission = _r.post.create(community_id, name=title, url=url, nsfw=bool(nsfw))
         return submission
     except:
