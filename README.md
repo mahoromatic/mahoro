@@ -31,14 +31,14 @@ Run once on new host
 
 ```sh
 $ mkdir -p $DATA_DIR  # for database and logs
-$ docker run --env-file dev.env -v $DATA_DIR:/data mahoro:latest -m setup
-$ docker run --env-file dev.env -v $DATA_DIR:/data mahoro:latest -m edit mangaplus.yaml
+$ docker run --rm --env-file .env -v $DATA_DIR:/data mahoro:latest -m setup
+$ docker run --rm --env-file .env -v $DATA_DIR:/data mahoro:latest -m edit mangaplus.yaml
 ```
 
 ## Running
 
 ```
-$ docker run --env-file .env -v -v $DATA_DIR:/data mahoro:latest --no-input
+$ docker run --restart unless-stopped --env-file .env -v -v $DATA_DIR:/data mahoro:latest --no-input
 ```
 
 # Upstream README
